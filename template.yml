@@ -116,24 +116,6 @@ Resources:
     Properties:
       LogGroupName: !Join ["", ["/aws/lambda/", !Ref AuditorLambdaFunction]]
 
-  LambdaLogPermissions:
-    Type: AWS::IAM::Policy
-    Properties:
-      Roles:
-        - !Ref LambdaRole
-      PolicyName: lambda-logs
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource:
-              - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AuditorLambdaFunction}"
-              - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AuditorLambdaFunction}:*"
-              - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AuditorLambdaFunction}:*:*"
-
   LambdaSSMPermissions:
     Type: AWS::IAM::Policy
     Properties:
@@ -153,10 +135,17 @@ Resources:
               - ssm:GetParametersByPath
               - ssm:GetParameters
               - ssm:GetParameter
-              - ssm:PutParameter
               - ssm:DescribeParameters
             Resource:
               - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${GitHubTokenSSMPath}
+          - Effect: Allow
+            Action:
+              - ssm:GetParametersByPath
+              - ssm:GetParameters
+              - ssm:GetParameter
+              - ssm:PutParameter
+              - ssm:DescribeParameters
+            Resource:
               - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${LastTimeCheckedSSMPath}
 
   LambdaRole:
@@ -292,9 +281,6 @@ Resources:
           MetricName: RuntimeError
 
 Outputs:
-  LambdaFunction:
-    Description: The lambda function
-    Value: !Ref AuditorLambdaFunction
   LambdaLogGroup:
     Description: The lambda log group
     Value: !Ref LambdaLogGroup
