@@ -73,6 +73,6 @@ sam deploy \
 	--parameter-overrides "${PARAMETER_OVERRIDES}"
 
 # Set the lambda log group retention policy,
-# since it is not possible in CloudFormation
+# https://github.com/aws/serverless-application-model/issues/257#issuecomment-461896365
 lambda_log_group_name=$(aws --region "$REGION" cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey=='LambdaLogGroup'].OutputValue" --output text)
 aws --region "$REGION" logs put-retention-policy --log-group-name "$lambda_log_group_name" --retention-in-days 731

@@ -1,10 +1,10 @@
-# Github PR Auditor
+# GitHub PR Auditor
 
 This tool audits PRs in order to determine whether or not they were merged with appropriate approval.
 
 If the pull request does not meet the acceptance criteria, it will log an error linking the non-compliant pull request.
 
-At the moment, all requests are run serially so larger time windows could take a while.
+At the moment, all requests are run synchronously so larger merge windows could take a while.
 
 ## Acceptance Criteria
 
@@ -38,7 +38,7 @@ GITHUB_API_TOKEN='<INSERT-PAT-HERE>' GITHUB_ORG_NAME='rewindio' ./src/auditor.rb
 
 The auditor can also be deployed to AWS via [aws-sam-cli](https://github.com/aws/aws-sam-cli). It requires an existing S3 bucket.
 
-It works by running the auditor code in a lambda on a schedule (Amazon CloudWatch Events), keeping track of the last successful run in an AWS SSM parameter.
+It works by running the auditor code in AWS Lambda on a schedule (Amazon CloudWatch Events), keeping track of the last successful run time in a Parameter Store parameter.
 
 ### Requirements
 
