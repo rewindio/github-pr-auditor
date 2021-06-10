@@ -1,0 +1,4 @@
+# frozen_string_literal: true
+
+# Add external dependencies to lambda_layers/
+# so they get picked up as a lambda layer
