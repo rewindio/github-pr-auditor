@@ -28,11 +28,26 @@ Parameters:
     Type: String
     Description: SNS topic ARN to send cloudwatch alerts to (regional)
 
+  AlarmEmergencyChangeName:
+    Type: String
+    Description: Name for the emergency change alarm
+    Default: github-pr-emergency-change
+
+  AlarmMissingRepoProtectionsName:
+    Type: String
+    Description: Name for the repo protections alarm
+    Default: github-repo-missing-protections
+
+  AlarmMissingLogsName:
+    Type: String
+    Description: Name for the missing logs alarm
+    Default: github-pr-auditor-missing-logs
+
   LambdaRate:
     Description: >
       The rate (frequency) that determines when CloudWatch Events runs the rule that
       triggers the Lambda function. See https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html
-    Default: rate(1 day)
+    Default: rate(23 hours)
     Type: String
 
 Resources:
@@ -166,8 +181,8 @@ Resources:
   EmergencyChangeAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: GitHub PR emergency change
-      AlarmDescription: Alarm if there has been an emergency change
+      AlarmName: !Ref AlarmEmergencyChangeName
+      AlarmDescription: A GitHub PR emergency change was merged
       MetricName: GitHubEmergencyChange
       Namespace: GitHubAuditing
       Statistic: Sum
@@ -193,8 +208,8 @@ Resources:
   MissingRepoProtections:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: GitHub Repo MissingProtections
-      AlarmDescription: Alarm if a default branch is missing protections
+      AlarmName: !Ref AlarmMissingRepoProtectionsName
+      AlarmDescription: Default branch is missing protections
       MetricName: GitHubMissingRepoProtections
       Namespace: GitHubAuditing
       Statistic: Sum
@@ -216,6 +231,33 @@ Resources:
         - MetricValue: "1"
           MetricNamespace: GitHubAuditing
           MetricName: GitHubMissingRepoProtections
+
+  MissingLogs:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Ref AlarmMissingLogsName
+      AlarmDescription: GitHub PR Auditor has not run
+      MetricName: MissingLogs
+      Namespace: GitHubAuditing
+      Statistic: Sum
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: 0
+      TreatMissingData: breaching
+      AlarmActions:
+        - !Ref AlarmSNSTopicArn
+      ComparisonOperator: LessThanOrEqualToThreshold
+
+  MissingLogsFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LambdaLogGroup
+      FilterPattern: |-
+        Starting PR auditor...
+      MetricTransformations:
+        - MetricValue: "1"
+          MetricNamespace: GitHubAuditing
+          MetricName: MissingLogs
 
 Outputs:
   LambdaFunction:
