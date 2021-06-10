@@ -31,17 +31,22 @@ Parameters:
   AlarmEmergencyChangeName:
     Type: String
     Description: Name for the emergency change alarm
-    Default: github-pr-emergency-change
+    Default: github-pr-auditor-emergency-change
 
   AlarmMissingRepoProtectionsName:
     Type: String
     Description: Name for the repo protections alarm
-    Default: github-repo-missing-protections
+    Default: github-auditor-missing-repo-protections
 
   AlarmMissingLogsName:
     Type: String
     Description: Name for the missing logs alarm
     Default: github-pr-auditor-missing-logs
+
+  AlarmRuntimeErrorName:
+    Type: String
+    Description: Name for the runtime error alarm
+    Default: github-pr-auditor-runtime-error
 
   LambdaRate:
     Description: >
@@ -258,6 +263,33 @@ Resources:
         - MetricValue: "1"
           MetricNamespace: GitHubAuditing
           MetricName: MissingLogs
+
+  RuntimeError:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Ref AlarmRuntimeErrorName
+      AlarmDescription: GitHub PR Auditor ran with an error
+      MetricName: RuntimeError
+      Namespace: GitHubAuditing
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref AlarmSNSTopicArn
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+
+  RuntimeErrorFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LambdaLogGroup
+      FilterPattern: |-
+        ERROR
+      MetricTransformations:
+        - MetricValue: "1"
+          MetricNamespace: GitHubAuditing
+          MetricName: RuntimeError
 
 Outputs:
   LambdaFunction:

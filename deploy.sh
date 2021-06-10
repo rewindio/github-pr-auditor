@@ -49,6 +49,7 @@ AWS_PROFILE=$2
 STACK_NAME=$3
 REGION=$4
 PARAMETER_OVERRIDES=$5
+LOG_RETENTION_IN_DAYS=731
 
 # Ensure the correct AWS_PROFILE is used
 export AWS_PROFILE=$AWS_PROFILE
@@ -75,4 +76,7 @@ sam deploy \
 # Set the lambda log group retention policy,
 # https://github.com/aws/serverless-application-model/issues/257#issuecomment-461896365
 lambda_log_group_name=$(aws --region "$REGION" cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey=='LambdaLogGroup'].OutputValue" --output text)
-aws --region "$REGION" logs put-retention-policy --log-group-name "$lambda_log_group_name" --retention-in-days 731
+aws logs put-retention-policy \
+	--region "$REGION" \
+	--log-group-name "$lambda_log_group_name" \
+	--retention-in-days "$LOG_RETENTION_IN_DAYS"
