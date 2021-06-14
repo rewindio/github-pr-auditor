@@ -2,7 +2,7 @@
 
 This tool audits PRs in order to determine whether or not they were merged with appropriate approval.
 
-If the pull request does not meet the acceptance criteria, it will log an error linking the non-compliant pull request.
+If the pull request does not meet the acceptance criteria, it will log the non-compliant pull request and provide a link to it.
 
 At the moment, all requests are run synchronously so larger merge windows could take a while.
 
@@ -18,7 +18,7 @@ The following environment variables are required at runtime:
 
 | Variable           |                               Description                               |
 | ------------------ | :---------------------------------------------------------------------: |
-| GITHUB_API_TOKEN   | A Github Personal Access Token (PAT) that has repo and admin:org scopes |
+| GITHUB_API_TOKEN   |      A Github Personal Access Token (PAT) that has the repo scope       |
 | GITHUB_ORG_NAME    |              The github org name to scan (i.e. 'rewindio')              |
 | MERGED_AFTER_DATE  |    A date that follows the ISO8601 standard. Defaults to 1 day ago.     |
 | MERGED_BEFORE_DATE | A date that follows the ISO8601 standard. Defaults to the present time. |

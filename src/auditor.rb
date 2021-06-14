@@ -102,5 +102,5 @@ search_results.items.each do |pr|
   end
 
   approval_count = count_approved_reviews(reviews)
-  logger.error("The required number of approvers for '#{pr_name}' merged by #{pr_metadata.merged_by.login} was not met! (Approvals found: #{approval_count}/#{required_approval_count}) #{pr_metadata.html_url}") if approval_count < required_approval_count
+  logger.info("The required number of approvers for '#{pr_name}' merged by #{pr_metadata.merged_by.login} was not met! (Approvals found: #{approval_count}/#{required_approval_count}) #{pr_metadata.html_url}") if approval_count < required_approval_count
 end
