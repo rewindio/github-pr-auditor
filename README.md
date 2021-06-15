@@ -18,8 +18,8 @@ The following environment variables are required at runtime:
 
 | Variable           |                               Description                               |
 | ------------------ | :---------------------------------------------------------------------: |
-| GITHUB_API_TOKEN   |      A Github Personal Access Token (PAT) that has the repo scope       |
-| GITHUB_ORG_NAME    |              The github org name to scan (i.e. 'rewindio')              |
+| GITHUB_API_TOKEN   |      A Github Personal Access Token (PAT) that has the repo scope.      |
+| GITHUB_ORG_NAME    |                      The GitHub Org name to scan.                       |
 | MERGED_AFTER_DATE  |    A date that follows the ISO8601 standard. Defaults to 1 day ago.     |
 | MERGED_BEFORE_DATE | A date that follows the ISO8601 standard. Defaults to the present time. |
 
@@ -31,7 +31,7 @@ This requires [ruby](https://www.ruby-lang.org/en/documentation/installation/) t
 
 ```shell
 bundler install
-GITHUB_API_TOKEN='<INSERT-PAT-HERE>' GITHUB_ORG_NAME='rewindio' ./src/auditor.rb
+GITHUB_API_TOKEN='<INSERT-PAT-HERE>' GITHUB_ORG_NAME='your-github-org' ./src/auditor.rb
 ```
 
 ## Deploy to AWS

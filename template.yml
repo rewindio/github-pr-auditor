@@ -22,7 +22,6 @@ Parameters:
   GitHubOrgName:
     Type: String
     Description: The org to scan
-    Default: rewindio
 
   AlarmSNSTopicArn:
     Type: String
