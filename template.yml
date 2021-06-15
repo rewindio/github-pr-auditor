@@ -11,12 +11,11 @@ Parameters:
 
   GitHubTokenSSMPath:
     Type: String
-    Description: The path to the SSM Parameter containing the Rewind API auth token
-    Default: /devops/github/pr-auditor-pat
+    Description: The path to the SSM Parameter containing the GitHub API Personal Access Token (this must already exist)
 
   LastTimeCheckedSSMPath:
     Type: String
-    Description: The path to the SSM Parameter containing the Rewind API auth token
+    Description: The path to the SSM Parameter that will be created and contain the last audit time
     Default: /devops/github/pr-auditor-last-time-checked
 
   GitHubOrgName:
