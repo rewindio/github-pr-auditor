@@ -35,6 +35,8 @@ The auditor can also be deployed to AWS via [aws-sam-cli](https://github.com/aws
 
 It works by running the auditor code in AWS Lambda on a schedule (Amazon CloudWatch Events), keeping track of the last successful run time in a Parameter Store parameter.
 
+![diagram](https://user-images.githubusercontent.com/4519234/122277304-bff67500-ceb3-11eb-8bfd-4ef8d3fa7e42.png)
+
 This also includes CloudWatch Alarms that will alarm upon:
 
 - Any non-compliant pull request
@@ -51,7 +53,12 @@ This also includes CloudWatch Alarms that will alarm upon:
 For example, to deploy with a [Named profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) of `my-aws-staging-account`:
 
 ```sh
-./deploy.sh 'aws-sam-bucket-github-pr-auditor' 'my-aws-staging-account' 'github-pr-auditor' 'us-east-1' 'AlarmSNSTopicArn=arn:aws:sns:us-east-1:000000000000:mytopic KMSDecryptSSMKeyID=t22cc86b-e043-4e65-828e-8f737121abc2'
+./deploy.sh 'aws-sam-bucket-github-pr-auditor' \
+  'my-aws-staging-account' \
+  'github-pr-auditor' \
+  'us-east-1' \
+  'AlarmSNSTopicArn=arn:aws:sns:us-east-1:000000000000:mytopic \
+  KMSDecryptSSMKeyID=t22cc86b-e043-4e65-828e-8f737121abc2'
 ```
 
 ### Destroying
