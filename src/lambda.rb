@@ -46,12 +46,12 @@ end
 
 def handler(*)
   ENV['GITHUB_API_TOKEN'] = github_token_from_ssm
-  ENV['MERGED_AFTER_DATE'] = last_time_checked_from_ssm unless ENV['MERGED_AFTER_DATE']
-  ENV['MERGED_BEFORE_DATE'] = DateTime.now.iso8601(3) unless ENV['MERGED_BEFORE_DATE']
+  ENV['AFTER_DATE'] = last_time_checked_from_ssm unless ENV['AFTER_DATE']
+  ENV['BEFORE_DATE'] = DateTime.now.iso8601(3) unless ENV['BEFORE_DATE']
   require_relative './auditor'
 
   # Update parameter so that future invocations know which time was last checked
-  update_ssm_parameter(ENV['LAST_TIME_CHECKED_SSM_PATH'], ENV['MERGED_BEFORE_DATE'])
+  update_ssm_parameter(ENV['LAST_TIME_CHECKED_SSM_PATH'], ENV['BEFORE_DATE'])
 
   {
     statusCode: 200,
