@@ -31,11 +31,6 @@ Parameters:
     Description: Name for the emergency change alarm
     Default: github-pr-auditor-emergency-change
 
-  AlarmMissingRepoProtectionsName:
-    Type: String
-    Description: Name for the repo protections alarm
-    Default: github-auditor-missing-repo-protections
-
   AlarmMissingLogsName:
     Type: String
     Description: Name for the missing logs alarm
@@ -191,38 +186,11 @@ Resources:
     Properties:
       LogGroupName: !Ref LambdaLogGroup
       FilterPattern: |-
-        "The required number of approvers for" "was not met!"
+        "is non-compliant!"
       MetricTransformations:
         - MetricValue: "1"
           MetricNamespace: GitHubAuditing
           MetricName: GitHubEmergencyChange
-
-  MissingRepoProtections:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: !Ref AlarmMissingRepoProtectionsName
-      AlarmDescription: Default branch is missing protections
-      MetricName: GitHubMissingRepoProtections
-      Namespace: GitHubAuditing
-      Statistic: Sum
-      Period: 300
-      EvaluationPeriods: 1
-      Threshold: 1
-      TreatMissingData: notBreaching
-      AlarmActions:
-        - !Ref AlarmSNSTopicArn
-      ComparisonOperator: GreaterThanOrEqualToThreshold
-
-  MissingRepoProtectionsFilter:
-    Type: AWS::Logs::MetricFilter
-    Properties:
-      LogGroupName: !Ref LambdaLogGroup
-      FilterPattern: |-
-        Unable to get branch protections summary
-      MetricTransformations:
-        - MetricValue: "1"
-          MetricNamespace: GitHubAuditing
-          MetricName: GitHubMissingRepoProtections
 
   MissingLogs:
     Type: AWS::CloudWatch::Alarm
