@@ -53,12 +53,11 @@ This also includes CloudWatch Alarms that will alarm upon:
 For example, to deploy with a [Named profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) of `my-aws-staging-account`:
 
 ```sh
-./deploy.sh 'aws-sam-bucket-github-pr-auditor' \
-  'my-aws-staging-account' \
-  'github-pr-auditor' \
-  'us-east-1' \
-  'AlarmSNSTopicArn=arn:aws:sns:us-east-1:000000000000:mytopic \
-  KMSDecryptSSMKeyID=t22cc86b-e043-4e65-828e-8f737121abc2'
+make deploy-staging \
+  STACK_NAME=github-pr-auditor \
+  BUCKET_NAME=thirdblink-lambda-sam-production \
+  REGION=us-east-1 \
+  SAM_PARAMS_PATH=sam-params/example.cfg
 ```
 
 ### Destroying
@@ -66,7 +65,7 @@ For example, to deploy with a [Named profile](https://docs.aws.amazon.com/cli/la
 To destroy all of the resources provisioned:
 
 ```sh
-aws cloudformation delete-stack --stack-name 'github-pr-auditor'
+make destroy STACK_NAME=github-pr-auditor
 ```
 
 ## Development

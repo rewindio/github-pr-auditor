@@ -22,7 +22,7 @@ Parameters:
     Type: String
     Description: The org to scan
 
-  AlarmSNSTopicArn:
+  AlarmSNSTopic:
     Type: String
     Description: SNS topic ARN to send cloudwatch alerts to (regional)
 
@@ -50,7 +50,7 @@ Parameters:
 
 Resources:
   AuditorLambdaFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
       Handler: lambda.handler
@@ -178,7 +178,7 @@ Resources:
       Threshold: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref AlarmSNSTopicArn
+        - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${AlarmSNSTopic}
       ComparisonOperator: GreaterThanOrEqualToThreshold
 
   EmergencyChangeFilter:
@@ -205,7 +205,7 @@ Resources:
       Threshold: 0
       TreatMissingData: breaching
       AlarmActions:
-        - !Ref AlarmSNSTopicArn
+        - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${AlarmSNSTopic}
       ComparisonOperator: LessThanOrEqualToThreshold
 
   MissingLogsFilter:
@@ -232,7 +232,7 @@ Resources:
       Threshold: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref AlarmSNSTopicArn
+        - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${AlarmSNSTopic}
       ComparisonOperator: GreaterThanOrEqualToThreshold
 
   RuntimeErrorFilter:
