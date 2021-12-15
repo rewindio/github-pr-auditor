@@ -25,7 +25,7 @@ begin
   logger.info("Searching between #{after_date} - #{before_date}")
   search_results = []
   Retriable.retriable do
-    search_results = @client.search_issues("org:#{org_name} closed:#{after_date}..#{before_date} #{search_query}")
+    search_results = @client.search_issues("archived:false org:#{org_name} closed:#{after_date}..#{before_date} #{search_query}")
   end
 rescue => e
   logger.error("Unable to search for pull requests: #{e.message}")
