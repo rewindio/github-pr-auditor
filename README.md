@@ -50,7 +50,7 @@ This also includes CloudWatch Alarms that will alarm upon:
 
 ### Running the deploy script
 
-For example, to deploy with a [Named profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) of `my-aws-staging-account`:
+For example, to deploy the CloudFormation stack:
 
 ```sh
 make deploy-staging \
