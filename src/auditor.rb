@@ -17,7 +17,7 @@ Dotenv.require_keys('GITHUB_API_TOKEN', 'GITHUB_ORG_NAME')
 after_date = ENV['AFTER_DATE'] || (DateTime.now - 1).iso8601(3)
 before_date = ENV['BEFORE_DATE'] || DateTime.now.iso8601(3)
 org_name = ENV['GITHUB_ORG_NAME']
-search_query = ENV['GITHUB_SEARCH_QUERY'] || 'is:pr is:merged review:required'
+search_query = ENV['GITHUB_SEARCH_QUERY'] || 'archived:false is:pr is:merged review:required'
 
 @client = Octokit::Client.new(access_token: ENV['GITHUB_API_TOKEN'], per_page: 100, auto_paginate: true)
 
@@ -25,7 +25,7 @@ begin
   logger.info("Searching between #{after_date} - #{before_date}")
   search_results = []
   Retriable.retriable do
-    search_results = @client.search_issues("archived:false org:#{org_name} closed:#{after_date}..#{before_date} #{search_query}")
+    search_results = @client.search_issues("org:#{org_name} closed:#{after_date}..#{before_date} #{search_query}")
   end
 rescue => e
   logger.error("Unable to search for pull requests: #{e.message}")
