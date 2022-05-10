@@ -14,7 +14,7 @@ package: build
 validate:
 	sam validate
 
-deploy-staging: package
+deploy: package
 	sam deploy \
 		--template-file out.yml \
 		--stack-name $(STACK_NAME) \
