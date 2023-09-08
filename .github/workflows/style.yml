@@ -1,0 +1,38 @@
+name: Style Checks
+
+on: pull_request
+
+jobs:
+  rubocop:
+    name: runner / rubocop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+
+      - name: rubocop
+        uses: reviewdog/action-rubocop@a40c91cf4f0fc642370618bc65247a5c0dcecf66 # v2
+        with:
+          rubocop_version: gemfile
+          rubocop_extensions: rubocop-performance:1.5.1 rubocop-minitest rewind-ruby-style
+          github_token: ${{ secrets.github_token }}
+          filter_mode: file
+          fail_on_error: true
+  shellcheck:
+    name: runner / shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        uses: reviewdog/action-shellcheck@50e5e1e2284575f23a1e409d9c0804cdfc4f6e31 # v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review # Change reporter.
+          path: "." # Optional.
+          pattern: "*.sh" # Optional.
+          exclude: "./.git/*" # Optional.

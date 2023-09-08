@@ -1,0 +1,248 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  GitHub PR Auditor
+
+Parameters:
+  KMSDecryptSSMKeyID:
+    Type: String
+    Description: The KMS Key used to decrypt SSM parameters
+
+  GitHubTokenSSMPath:
+    Type: String
+    Description: The path to the SSM Parameter containing the GitHub API Personal Access Token (this must already exist)
+
+  LastTimeCheckedSSMPath:
+    Type: String
+    Description: The path to the SSM Parameter that will be created and contain the last audit time
+    Default: /devops/github/pr-auditor-last-time-checked
+
+  GitHubOrgName:
+    Type: String
+    Description: The org to scan
+
+  AlarmSNSTopic:
+    Type: String
+    Description: SNS topic ARN to send cloudwatch alerts to (regional)
+
+  AlarmEmergencyChangeName:
+    Type: String
+    Description: Name for the emergency change alarm
+    Default: github-pr-auditor-emergency-change
+
+  AlarmMissingLogsName:
+    Type: String
+    Description: Name for the missing logs alarm
+    Default: github-pr-auditor-missing-logs
+
+  AlarmRuntimeErrorName:
+    Type: String
+    Description: Name for the runtime error alarm
+    Default: github-pr-auditor-runtime-error
+
+  LambdaRate:
+    Description: >
+      The rate (frequency) that determines when CloudWatch Events runs the rule that
+      triggers the Lambda function. See https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html
+    Default: rate(23 hours)
+    Type: String
+
+Resources:
+  AuditorLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: lambda.handler
+      MemorySize: 384
+      ReservedConcurrentExecutions: 1
+      Role: !GetAtt LambdaRole.Arn
+      Runtime: ruby2.7
+      Timeout: 300
+      Layers:
+        - !Ref AuditorLambdaLayer
+      Environment:
+        Variables:
+          GITHUB_ORG_NAME: !Ref GitHubOrgName
+          GITHUB_TOKEN_SSM_PATH: !Ref GitHubTokenSSMPath
+          LAST_TIME_CHECKED_SSM_PATH: !Ref LastTimeCheckedSSMPath
+    Tags:
+      lambda: github-pr-auditor
+
+  AuditorLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: github-pr-auditor-dependencies
+      Description: Dependencies for github-pr-auditor
+      ContentUri: lambda_layer
+      CompatibleRuntimes:
+        - ruby2.7
+      RetentionPolicy: Retain
+    Metadata:
+      BuildMethod: makefile
+
+  LambdaSchedule:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Description: >
+        A schedule for the Lambda function.
+      ScheduleExpression: !Ref LambdaRate
+      State: ENABLED
+      Targets:
+        - Arn: !Sub ${AuditorLambdaFunction.Arn}
+          Id: LambdaSchedule
+
+  LambdaSchedulePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !Sub ${AuditorLambdaFunction.Arn}
+      Principal: "events.amazonaws.com"
+      SourceArn: !Sub ${LambdaSchedule.Arn}
+
+  LambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ["", ["/aws/lambda/", !Ref AuditorLambdaFunction]]
+
+  LambdaSSMPermissions:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles:
+        - !Ref LambdaRole
+      PolicyName: lambda-ssm
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - kms:Decrypt*
+            Resource:
+              - !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/${KMSDecryptSSMKeyID}
+          - Effect: Allow
+            Action:
+              - ssm:GetParametersByPath
+              - ssm:GetParameters
+              - ssm:GetParameter
+              - ssm:DescribeParameters
+            Resource:
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${GitHubTokenSSMPath}
+          - Effect: Allow
+            Action:
+              - ssm:GetParametersByPath
+              - ssm:GetParameters
+              - ssm:GetParameter
+              - ssm:PutParameter
+              - ssm:DescribeParameters
+            Resource:
+              - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${LastTimeCheckedSSMPath}
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: "AllowLambdaServiceToAssumeRole"
+            Effect: "Allow"
+            Action:
+              - "sts:AssumeRole"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  LastTimeCheckedParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Ref LastTimeCheckedSSMPath
+      Type: String
+      Value: "null"
+      Description: "Keeps track of the last time PRs were checked (stored in ISO8601)"
+
+  EmergencyChangeAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Ref AlarmEmergencyChangeName
+      AlarmDescription: A GitHub PR emergency change was merged
+      MetricName: GitHubEmergencyChange
+      Namespace: GitHubAuditing
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${AlarmSNSTopic}
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+
+  EmergencyChangeFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LambdaLogGroup
+      FilterPattern: |-
+        "is non-compliant!"
+      MetricTransformations:
+        - MetricValue: "1"
+          MetricNamespace: GitHubAuditing
+          MetricName: GitHubEmergencyChange
+
+  MissingLogs:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Ref AlarmMissingLogsName
+      AlarmDescription: GitHub PR Auditor has not run
+      MetricName: MissingLogs
+      Namespace: GitHubAuditing
+      Statistic: Sum
+      Period: 86400
+      EvaluationPeriods: 1
+      Threshold: 0
+      TreatMissingData: breaching
+      AlarmActions:
+        - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${AlarmSNSTopic}
+      ComparisonOperator: LessThanOrEqualToThreshold
+
+  MissingLogsFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LambdaLogGroup
+      FilterPattern: |-
+        Starting PR auditor...
+      MetricTransformations:
+        - MetricValue: "1"
+          MetricNamespace: GitHubAuditing
+          MetricName: MissingLogs
+
+  RuntimeError:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Ref AlarmRuntimeErrorName
+      AlarmDescription: GitHub PR Auditor ran with an error
+      MetricName: RuntimeError
+      Namespace: GitHubAuditing
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Sub arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${AlarmSNSTopic}
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+
+  RuntimeErrorFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Ref LambdaLogGroup
+      FilterPattern: |-
+        ERROR
+      MetricTransformations:
+        - MetricValue: "1"
+          MetricNamespace: GitHubAuditing
+          MetricName: RuntimeError
+
+Outputs:
+  LambdaLogGroup:
+    Description: The lambda log group
+    Value: !Ref LambdaLogGroup

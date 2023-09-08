@@ -1,0 +1,18 @@
+inherit_gem:
+  rewind-ruby-style: rubocop.yml
+
+AllCops:
+  NewCops: enable
+
+# Below conflict with rufo:
+Style/TrailingCommaInArguments:
+  Enabled: false
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+
+Style/TrailingCommaInHashLiteral:
+  Enabled: false
+
+Style/TrailingMethodEndStatement:
+  Enabled: false

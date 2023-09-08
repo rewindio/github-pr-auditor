@@ -1,0 +1,9 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "github-pr-auditor"
+s3_prefix = "github-pr-auditor"
+confirm_changeset = false
+capabilities = "CAPABILITY_NAMED_IAM"
+tags = "product=\"common\" grouping=\"tooling\" service=\"github-pr-auditor\" managed-resource=\"sam\""
