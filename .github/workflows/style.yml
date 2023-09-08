@@ -16,7 +16,7 @@ jobs:
           ruby-version: 2.7
 
       - name: rubocop
-        uses: reviewdog/action-rubocop@a40c91cf4f0fc642370618bc65247a5c0dcecf66 # v2
+        uses: reviewdog/action-rubocop@e70b014b8062c447d6b515ee0209f834ea93e696 # v2
         with:
           rubocop_version: gemfile
           rubocop_extensions: rubocop-performance:1.5.1 rubocop-minitest rewind-ruby-style
