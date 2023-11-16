@@ -22,7 +22,7 @@ To read more about how GitHub's search syntax works, see [understanding the sear
 
 ### Execution
 
-This requires [ruby](https://www.ruby-lang.org/en/documentation/installation/) to be installed on your machine. It was tested on `Ruby 2.7`. Other versions may work.
+This requires [ruby](https://www.ruby-lang.org/en/documentation/installation/) to be installed on your machine. It was tested on `Ruby 3.2.2`. Other versions may work.
 
 ```shell
 bundler install
