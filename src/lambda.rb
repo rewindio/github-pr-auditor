@@ -9,7 +9,7 @@
 # and any side effects from a collision would have minimal impact.
 
 require 'json'
-require 'aws-sdk'
+require 'aws-sdk-ssm'
 
 SSM_CLIENT = Aws::SSM::Client.new
 
