@@ -1,2 +1,4 @@
 ---
 BUNDLE_PATH: "lambda_layer"
+BUNDLE_WITHOUT: "development"
+BUNDLE_CLEAN: "true"

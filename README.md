@@ -48,6 +48,15 @@ This also includes CloudWatch Alarms that will alarm upon:
 - [awscli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
 - [aws-sam-cli](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 
+### Building
+Note that the SAM build uses Docker to ensure a matching platform architecture with the AWS lambda runtime.
+Ensure you have docker running before building the SAM application
+
+```shell
+make build REGION=us-east-1
+```
+
+
 ### Running the deploy script
 
 For example, to deploy the CloudFormation stack:
@@ -59,6 +68,7 @@ make deploy-staging \
   REGION=us-east-1 \
   SAM_PARAMS_PATH=sam-params/example.cfg
 ```
+
 
 ### Destroying
 

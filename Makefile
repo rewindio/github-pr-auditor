@@ -2,10 +2,12 @@
 LOG_RETENTION_IN_DAYS ?= 731
 
 validate:
-	sam validate
+	sam validate --region "$(REGION)"
 
 build: validate
-	sam build --use-container
+	cp Gemfile* lambda_layer/
+	sam build --use-container --mount-with WRITE
+	rm lambda_layer/Gemfile*
 
 package: build
 	sam package \

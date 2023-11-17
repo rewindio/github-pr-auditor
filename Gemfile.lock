@@ -21,7 +21,7 @@ GEM
     parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
-    public_suffix (5.0.3)
+    public_suffix (5.0.4)
     racc (1.7.3)
     rainbow (3.1.1)
     regexp_parser (2.8.2)
@@ -49,6 +49,7 @@ GEM
 
 PLATFORMS
   ruby
+  x86_64-linux
 
 DEPENDENCIES
   dotenv (~> 2.8)
