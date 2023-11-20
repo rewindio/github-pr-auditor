@@ -1,8 +1,13 @@
 
 LOG_RETENTION_IN_DAYS ?= 731
 
-build:
-	sam build
+validate:
+	sam validate --region "$(REGION)"
+
+build: validate
+	cp Gemfile* lambda_layer/
+	sam build --use-container --mount-with WRITE
+	rm lambda_layer/Gemfile*
 
 package: build
 	sam package \
@@ -10,9 +15,6 @@ package: build
 		--output-template-file out.yml \
 		--s3-bucket "$(BUCKET_NAME)" \
 		--region "$(REGION)" \
-
-validate:
-	sam validate
 
 deploy: package
 	sam deploy \
@@ -36,4 +38,3 @@ set-log-policy:
 
 destroy:
 	aws cloudformation delete-stack --stack-name "$(STACK_NAME)"
-

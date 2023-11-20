@@ -1,18 +1,95 @@
-inherit_gem:
-  rewind-ruby-style: rubocop.yml
-
 AllCops:
+  DisplayCopNames: true
+  TargetRubyVersion: 3.2
+  StyleGuideBaseURL: https://github.com/rewindio/ruby-style-configs/
   NewCops: enable
+  Exclude:
+    - .git/**/*
+    - bin/**/*
+    - tmp/**/*
+    - vendor/**/*
 
-# Below conflict with rufo:
-Style/TrailingCommaInArguments:
+# Layout cop configuration
+
+Layout/LineLength:
+  Max: 160
+
+# Lint cop configuration
+
+Lint/Debugger:
+  Enabled: true
+Lint/SuppressedException:
+  AllowComments: true
+
+# Metrics cop configuration
+
+Metrics/AbcSize:
+  Enabled: false
+Metrics/BlockLength:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
+Metrics/ParameterLists:
+  Enabled: false
+Metrics/PerceivedComplexity:
   Enabled: false
 
-Style/TrailingCommaInArrayLiteral:
-  Enabled: false
+# Naming cop configuration
 
-Style/TrailingCommaInHashLiteral:
-  Enabled: false
+Naming/MethodParameterName:
+  Enabled: true
+  Exclude:
+    - spec/support/helpers.rb
 
-Style/TrailingMethodEndStatement:
+Naming/BlockForwarding:
+  EnforcedStyle: explicit
+
+# Minitest cop configuration
+
+# Performance cop configuration
+
+# RSpec cop configuration
+
+# Style cop configuration
+Style/ArgumentsForwarding:
+  UseAnonymousForwarding: false
+Style/AsciiComments:
+  Enabled: false
+Style/ClassAndModuleChildren:
+  EnforcedStyle: compact
+  Exclude:
+    - config/**/*.rb
+    - lib/**/*.rb
+Style/DateTime:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/FrozenStringLiteralComment:
+  Details: >-
+    Add `# frozen_string_literal: true` to the top of the file. Frozen string
+    literals will become the default in a future Ruby version, and we want to
+    make sure we're ready.
+  EnforcedStyle: always
+  SupportedStyles:
+    - always
+    - never
+Style/HashEachMethods:
+  Enabled: true
+Style/HashSyntax:
+  EnforcedShorthandSyntax: either
+Style/HashTransformKeys:
+  Enabled: true
+Style/HashTransformValues:
+  Enabled: true
+Style/NumericPredicate:
+  Enabled: false # This is an unsafe setting which has the potential to introduce bugs because nil == 0 is false, where nil.zero? throws an exception.
+Style/RedundantSelf:
+  Enabled: true
+Style/RescueStandardError:
   Enabled: false

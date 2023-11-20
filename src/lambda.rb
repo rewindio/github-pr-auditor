@@ -9,14 +9,14 @@
 # and any side effects from a collision would have minimal impact.
 
 require 'json'
-require 'aws-sdk'
+require 'aws-sdk-ssm'
 
 SSM_CLIENT = Aws::SSM::Client.new
 
 def get_ssm_parameter(parameter_id)
   SSM_CLIENT.get_parameter(
     name: parameter_id,
-    with_decryption: true,
+    with_decryption: true
   )
 end
 
@@ -24,17 +24,17 @@ def update_ssm_parameter(parameter_id, value)
   SSM_CLIENT.put_parameter(
     name: parameter_id,
     overwrite: true,
-    value: value,
+    value: value
   )
 end
 
 def github_token_from_ssm
-  response = get_ssm_parameter(ENV['GITHUB_TOKEN_SSM_PATH'])
+  response = get_ssm_parameter(ENV.fetch('GITHUB_TOKEN_SSM_PATH', nil))
   response.parameter.value
 end
 
 def last_time_checked_from_ssm
-  response = get_ssm_parameter(ENV['LAST_TIME_CHECKED_SSM_PATH'])
+  response = get_ssm_parameter(ENV.fetch('LAST_TIME_CHECKED_SSM_PATH', nil))
   if response.parameter.value == 'null'
     # On a fresh deploy, there won't be a last time,
     # so default to 1 day ago
@@ -48,13 +48,13 @@ def handler(*)
   ENV['GITHUB_API_TOKEN'] = github_token_from_ssm
   ENV['AFTER_DATE'] = last_time_checked_from_ssm unless ENV['AFTER_DATE']
   ENV['BEFORE_DATE'] = DateTime.now.iso8601(3) unless ENV['BEFORE_DATE']
-  require_relative './auditor'
+  require_relative 'auditor'
 
   # Update parameter so that future invocations know which time was last checked
-  update_ssm_parameter(ENV['LAST_TIME_CHECKED_SSM_PATH'], ENV['BEFORE_DATE'])
+  update_ssm_parameter(ENV.fetch('LAST_TIME_CHECKED_SSM_PATH', nil), ENV.fetch('BEFORE_DATE', nil))
 
   {
     statusCode: 200,
-    body: {}.to_json,
+    body: {}.to_json
   }
 end

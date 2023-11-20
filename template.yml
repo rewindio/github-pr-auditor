@@ -57,7 +57,7 @@ Resources:
       MemorySize: 384
       ReservedConcurrentExecutions: 1
       Role: !GetAtt LambdaRole.Arn
-      Runtime: ruby2.7
+      Runtime: ruby3.2
       Timeout: 300
       Layers:
         - !Ref AuditorLambdaLayer
@@ -76,7 +76,7 @@ Resources:
       Description: Dependencies for github-pr-auditor
       ContentUri: lambda_layer
       CompatibleRuntimes:
-        - ruby2.7
+        - ruby3.2
       RetentionPolicy: Retain
     Metadata:
       BuildMethod: makefile
