@@ -16,7 +16,7 @@ jobs:
           ruby-version: 3.2.2
 
       - name: rubocop
-        uses: reviewdog/action-rubocop@2f726ae5dd8df72b4faa9d93669cdab96aeb2153 # v2
+        uses: reviewdog/action-rubocop@fcb74ba274da10b18d038d0bcddaae3518739634 #v2.21.2
         with:
           rubocop_version: gemfile
           github_token: ${{ secrets.github_token }}
@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: shellcheck
-        uses: reviewdog/action-shellcheck@96fa305c16b0f9cc9b093af22dcd09de1c8f1c2d # v1
+        uses: reviewdog/action-shellcheck@5ebd09ddbe2ebb471646ce234c6c8dd18663ca7c # v1.30.0
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review # Change reporter.
