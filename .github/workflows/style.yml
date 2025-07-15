@@ -16,7 +16,7 @@ jobs:
           ruby-version: 3.2.2
 
       - name: rubocop
-        uses: reviewdog/action-rubocop@fcb74ba274da10b18d038d0bcddaae3518739634 #v2.21.2
+        uses: reviewdog/action-rubocop@efcf72af8105d5f0e82b1afa0f3aa36d0fd33793 #v2.21.4
         with:
           rubocop_version: gemfile
           github_token: ${{ secrets.github_token }}
