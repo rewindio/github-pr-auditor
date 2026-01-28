@@ -7,6 +7,9 @@ gem 'logger-colors', '~>1.0'
 gem 'octokit', '~> 8.0'
 gem 'retriable', '~> 3.1'
 
-group :development do
+group :development, :test do
+  gem 'aws-sdk-ssm', '~> 1.0'
+  gem 'rspec', '~> 3.13'
   gem 'rubocop'
+  gem 'simplecov', require: false
 end

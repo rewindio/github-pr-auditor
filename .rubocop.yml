@@ -6,6 +6,7 @@ AllCops:
   Exclude:
     - .git/**/*
     - bin/**/*
+    - lambda_layer/**/*
     - tmp/**/*
     - vendor/**/*
 
