@@ -1,0 +1,50 @@
+name: Tests
+
+on: pull_request
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  rspec:
+    name: rspec tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v6
+
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.1
+          bundler-cache: true
+
+      - name: Run rspec tests
+        run: |
+          bundle exec rspec
+
+      - name: Upload coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          include-hidden-files: 'true'
+          name: coverage-results
+          path: coverage
+          retention-days: 5
+
+  coverage:
+    needs: rspec
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download coverage results
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-results
+          path: coverage
+
+      - name: Simplecov Report
+        uses: aki77/simplecov-report-action@7fd5fa551dd583dd437a11c640b2a1cf23d6cdaa
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          failedThreshold: 70
+          resultPath: coverage/.last_run.json
